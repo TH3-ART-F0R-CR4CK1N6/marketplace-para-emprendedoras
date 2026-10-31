@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Marketplace Emprendedoras{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="{{ url_for('index') }}">✨ Emprendedoras Market</a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Inicio</a>
+                <a href="{{ url_for('search') }}">Explorar</a>
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}">Panel Admin</a>
+                    {% elif current_user.role == 'emprendedora' %}
+                        <a href="{{ url_for('emprendedora_dashboard') }}">Mis Productos</a>
+                    {% endif %}
+                    <span class="user-welcome">Hola, {{ current_user.username }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">Salir</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-primary">Iniciar Sesión</a>
+                    <a href="{{ url_for('register') }}" class="btn-secondary">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                        <button class="close-alert">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Emprendedoras Market - Apoyando el talento femenino 💜</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

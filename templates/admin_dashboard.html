@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container dashboard">
+    <div class="dashboard-header">
+        <div>
+            <h1>Panel de Administración</h1>
+            <p>Gestiona usuarios y productos de la plataforma</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_users }}</div>
+            <div class="stat-label">Total Usuarios</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_emprendedoras }}</div>
+            <div class="stat-label">Emprendedoras</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_products }}</div>
+            <div class="stat-label">Total Productos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.active_products }}</div>
+            <div class="stat-label">Productos Activos</div>
+        </div>
+    </div>
+
+    <div class="table-container" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--dark-purple); margin-bottom: 1rem;">Usuarios</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Productos</th>
+                    <th>Fecha Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td><span class="product-badge">{{ user.role }}</span></td>
+                    <td>{{ user.products|length }}</td>
+                    <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            {% if user.id != current_user.id %}
+                                <button onclick="deleteUser({{ user.id }})" class="btn-danger btn-small">Eliminar</button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h2 style="color: var(--dark-purple); margin-bottom: 1rem;">Productos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Emprendedora</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>${{ "%.2f"|format(product.price) }}</td>
+                    <td>{{ product.owner.username }}</td>
+                    <td>
+                        <span class="product-badge" style="background: {{ 'var(--success)' if product.active else 'var(--error)' }}; color: white;">
+                            {{ 'Activo' if product.active else 'Inactivo' }}
+                        </span>
+                    </td>
+                    <td>{{ product.created_at.strftime('%d/%m/%Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteUser(userId) {
+    if (confirm('¿Estás segura de eliminar este usuario? Esta acción no se puede deshacer.')) {
+        fetch(`/admin/user/${userId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Error al eliminar usuario');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

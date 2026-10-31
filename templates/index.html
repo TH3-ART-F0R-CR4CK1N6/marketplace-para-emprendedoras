@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="hero">
+        <h1>✨ Marketplace de Emprendedoras ✨</h1>
+        <p>Descubre productos y servicios únicos creados por mujeres emprendedoras. Apoya el talento local y encuentra lo que necesitas.</p>
+    </div>
+
+    <div class="search-container">
+        <form action="{{ url_for('search') }}" method="GET" class="search-form">
+            <input type="text" name="q" placeholder="¿Qué estás buscando?" value="{{ request.args.get('q', '') }}">
+            <select name="category">
+                <option value="">Todas las categorías</option>
+                <option value="moda">Moda y Accesorios</option>
+                <option value="belleza">Belleza y Cuidado</option>
+                <option value="hogar">Hogar y Decoración</option>
+                <option value="alimentos">Alimentos y Bebidas</option>
+                <option value="arte">Arte y Manualidades</option>
+                <option value="servicios">Servicios Profesionales</option>
+                <option value="otros">Otros</option>
+            </select>
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+
+    <h2 style="color: var(--dark-purple); margin: 2rem 0;">Productos Destacados</h2>
+    
+    {% if products %}
+        <div class="products-grid">
+            {% for product in products %}
+                <div class="product-card" onclick="window.location='{{ url_for('view_product', product_id=product.id) }}'">
+                    {% if product.image %}
+                        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                            {{ '🎁' if not product.is_service else '💼' }}
+                        </div>
+                    {% endif %}
+                    <div class="product-content">
+                        <span class="product-badge">{{ '✨ Servicio' if product.is_service else '🛍️ Producto' }}</span>
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <p class="product-description">{{ product.description[:100] }}{{ '...' if product.description|length > 100 else '' }}</p>
+                        <div class="product-price">${{ "%.2f"|format(product.price) }}</div>
+                        <p class="product-owner">Por: {{ product.owner.username }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem; color: var(--text-gray);">
+            <p style="font-size: 1.2rem;">No hay productos disponibles aún.</p>
+            {% if current_user.is_authenticated and current_user.role == 'emprendedora' %}
+                <p style="margin-top: 1rem;">
+                    <a href="{{ url_for('new_product') }}" class="btn-primary">¡Publica tu primer producto!</a>
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

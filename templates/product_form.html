@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h2>{{ 'Editar Producto' if product else 'Nuevo Producto' }}</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Nombre del Producto/Servicio</label>
+                <input type="text" id="name" name="name" value="{{ product.name if product else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Descripción</label>
+                <textarea id="description" name="description" required>{{ product.description if product else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Precio ($)</label>
+                <input type="number" id="price" name="price" step="0.01" min="0" value="{{ product.price if product else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Categoría</label>
+                <select id="category" name="category" required>
+                    <option value="">Selecciona una categoría</option>
+                    <option value="moda" {{ 'selected' if product and product.category == 'moda' else '' }}>Moda y Accesorios</option>
+                    <option value="belleza" {{ 'selected' if product and product.category == 'belleza' else '' }}>Belleza y Cuidado</option>
+                    <option value="hogar" {{ 'selected' if product and product.category == 'hogar' else '' }}>Hogar y Decoración</option>
+                    <option value="alimentos" {{ 'selected' if product and product.category == 'alimentos' else '' }}>Alimentos y Bebidas</option>
+                    <option value="arte" {{ 'selected' if product and product.category == 'arte' else '' }}>Arte y Manualidades</option>
+                    <option value="servicios" {{ 'selected' if product and product.category == 'servicios' else '' }}>Servicios Profesionales</option>
+                    <option value="otros" {{ 'selected' if product and product.category == 'otros' else '' }}>Otros</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Imagen</label>
+                <input type="file" id="image" name="image" accept="image/*">
+                {% if product and product.image %}
+                    <p style="margin-top: 0.5rem; color: var(--text-gray); font-size: 0.9rem;">Imagen actual: {{ product.image }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="is_service" name="is_service" {{ 'checked' if product and product.is_service else '' }}>
+                <label for="is_service" style="margin-bottom: 0;">Es un servicio (no un producto físico)</label>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('emprendedora_dashboard') }}" class="btn-secondary">Cancelar</a>
+                <button type="submit" class="btn-success">{{ 'Actualizar' if product else 'Crear' }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

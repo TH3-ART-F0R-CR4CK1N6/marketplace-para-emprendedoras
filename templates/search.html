@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 style="color: var(--dark-purple); margin: 2rem 0; text-align: center;">Resultados de Búsqueda</h2>
+
+    <div class="search-container">
+        <form action="{{ url_for('search') }}" method="GET" class="search-form">
+            <input type="text" name="q" placeholder="¿Qué estás buscando?" value="{{ query }}">
+            <select name="category">
+                <option value="">Todas las categorías</option>
+                <option value="moda" {{ 'selected' if category == 'moda' else '' }}>Moda y Accesorios</option>
+                <option value="belleza" {{ 'selected' if category == 'belleza' else '' }}>Belleza y Cuidado</option>
+                <option value="hogar" {{ 'selected' if category == 'hogar' else '' }}>Hogar y Decoración</option>
+                <option value="alimentos" {{ 'selected' if category == 'alimentos' else '' }}>Alimentos y Bebidas</option>
+                <option value="arte" {{ 'selected' if category == 'arte' else '' }}>Arte y Manualidades</option>
+                <option value="servicios" {{ 'selected' if category == 'servicios' else '' }}>Servicios Profesionales</option>
+                <option value="otros" {{ 'selected' if category == 'otros' else '' }}>Otros</option>
+            </select>
+            <select name="type">
+                <option value="">Todo</option>
+                <option value="product" {{ 'selected' if product_type == 'product' else '' }}>Solo Productos</option>
+                <option value="service" {{ 'selected' if product_type == 'service' else '' }}>Solo Servicios</option>
+            </select>
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+
+    {% if products %}
+        <p style="color: var(--text-gray); text-align: center; margin: 2rem 0;">
+            Se encontraron {{ products|length }} resultado{{ 's' if products|length != 1 else '' }}
+        </p>
+        <div class="products-grid">
+            {% for product in products %}
+                <div class="product-card" onclick="window.location='{{ url_for('view_product', product_id=product.id) }}'">
+                    {% if product.image %}
+                        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                            {{ '🎁' if not product.is_service else '💼' }}
+                        </div>
+                    {% endif %}
+                    <div class="product-content">
+                        <span class="product-badge">{{ '✨ Servicio' if product.is_service else '🛍️ Producto' }}</span>
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <p class="product-description">{{ product.description[:100] }}{{ '...' if product.description|length > 100 else '' }}</p>
+                        <div class="product-price">${{ "%.2f"|format(product.price) }}</div>
+                        <p class="product-owner">Por: {{ product.owner.username }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem; background: white; border-radius: 15px; margin-top: 2rem;">
+            <h2 style="color: var(--dark-purple);">No se encontraron resultados</h2>
+            <p style="color: var(--text-gray); margin: 1rem 0;">Intenta con otros términos de búsqueda</p>
+            <a href="{{ url_for('index') }}" class="btn-primary">Ver todos los productos</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
