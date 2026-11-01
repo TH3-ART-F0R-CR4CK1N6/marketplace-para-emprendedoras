@@ -60,6 +60,28 @@ class Product(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Inicializar base de datos automáticamente
+def init_db():
+    """Inicializa la base de datos y crea usuario admin si no existe"""
+    with app.app_context():
+        # Crear todas las tablas
+        db.create_all()
+        
+        # Crear usuario admin por defecto si no existe
+        admin = User.query.filter_by(username='admin').first()
+        if not admin:
+            admin = User(username='admin', email='admin@marketplace.com', role='admin')
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            print('✓ Usuario admin creado: admin / admin123')
+
+# Ejecutar inicialización al importar el módulo
+try:
+    init_db()
+except Exception as e:
+    print(f'Error al inicializar base de datos: {e}')
+
 # Rutas principales
 @app.route('/')
 def index():
