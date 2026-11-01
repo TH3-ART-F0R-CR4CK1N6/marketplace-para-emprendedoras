@@ -79,17 +79,54 @@ def load_user(user_id):
 def init_db():
     """Inicializa la base de datos y crea usuario admin si no existe"""
     with app.app_context():
-        # Crear todas las tablas
-        db.create_all()
-        
-        # Crear usuario admin por defecto si no existe
-        admin = User.query.filter_by(username='admin').first()
-        if not admin:
-            admin = User(username='admin', email='admin@marketplace.com', role='admin')
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
-            print('✓ Usuario admin creado: admin / admin123')
+        try:
+            # Intentar crear todas las tablas (solo creará las que no existen)
+            db.create_all()
+            
+            # Intentar agregar columnas faltantes si la tabla ya existe
+            from sqlalchemy import text, inspect
+            inspector = inspect(db.engine)
+            
+            # Verificar si la tabla user existe
+            if 'user' in inspector.get_table_names():
+                existing_columns = [col['name'] for col in inspector.get_columns('user')]
+                
+                # Columnas nuevas que necesitamos agregar
+                new_columns = {
+                    'phone': 'VARCHAR(20)',
+                    'address': 'VARCHAR(200)',
+                    'facebook': 'VARCHAR(200)',
+                    'instagram': 'VARCHAR(200)',
+                    'twitter': 'VARCHAR(200)',
+                    'whatsapp': 'VARCHAR(20)',
+                    'bio': 'TEXT',
+                    'profile_image': 'VARCHAR(300)'
+                }
+                
+                # Agregar columnas que faltan
+                with db.engine.connect() as conn:
+                    for column_name, column_type in new_columns.items():
+                        if column_name not in existing_columns:
+                            try:
+                                sql = text(f'ALTER TABLE "user" ADD COLUMN {column_name} {column_type}')
+                                conn.execute(sql)
+                                conn.commit()
+                                print(f'✓ Columna agregada: {column_name}')
+                            except Exception as e:
+                                print(f'⚠ No se pudo agregar {column_name}: {str(e)}')
+            
+            # Crear usuario admin por defecto si no existe
+            admin = User.query.filter_by(username='admin').first()
+            if not admin:
+                admin = User(username='admin', email='admin@marketplace.com', role='admin')
+                admin.set_password('admin123')
+                db.session.add(admin)
+                db.session.commit()
+                print('✓ Usuario admin creado: admin / admin123')
+                
+        except Exception as e:
+            print(f'Error al inicializar base de datos: {e}')
+            # No lanzar la excepción para que la app pueda seguir funcionando
 
 # Ejecutar inicialización al importar el módulo
 try:
