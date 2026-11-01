@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 0;">
+    <div class="form-container">
+        <h2>Editar Producto: {{ product.name }}</h2>
+        <p style="color: #6b7280; margin-bottom: 2rem;">Propietario: <strong>{{ product.owner.username }}</strong></p>
+        
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Nombre del Producto *</label>
+                <input type="text" id="name" name="name" value="{{ product.name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Descripción *</label>
+                <textarea id="description" name="description" required>{{ product.description }}</textarea>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="price">Precio ($) *</label>
+                    <input type="number" id="price" name="price" step="0.01" value="{{ product.price }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Categoría *</label>
+                    <select id="category" name="category" required>
+                        <option value="moda" {% if product.category == 'moda' %}selected{% endif %}>Moda y Accesorios</option>
+                        <option value="hogar" {% if product.category == 'hogar' %}selected{% endif %}>Hogar y Decoración</option>
+                        <option value="belleza" {% if product.category == 'belleza' %}selected{% endif %}>Belleza y Cuidado Personal</option>
+                        <option value="artesania" {% if product.category == 'artesania' %}selected{% endif %}>Artesanía</option>
+                        <option value="alimentos" {% if product.category == 'alimentos' %}selected{% endif %}>Alimentos</option>
+                        <option value="servicios" {% if product.category == 'servicios' %}selected{% endif %}>Servicios Profesionales</option>
+                        <option value="tecnologia" {% if product.category == 'tecnologia' %}selected{% endif %}>Tecnología</option>
+                        <option value="otros" {% if product.category == 'otros' %}selected{% endif %}>Otros</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="image">Imagen del Producto</label>
+                {% if product.image %}
+                    <div style="margin-bottom: 1rem;">
+                        <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" style="max-width: 200px; border-radius: 8px;">
+                        <p style="font-size: 0.9rem; color: #6b7280; margin-top: 0.5rem;">Imagen actual</p>
+                    </div>
+                {% endif %}
+                <input type="file" id="image" name="image" accept="image/*">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="is_service" name="is_service" {% if product.is_service %}checked{% endif %}>
+                <label for="is_service">Este es un servicio (no un producto físico)</label>
+            </div>
+            
+            <div class="checkbox-group" style="margin-top: 1rem;">
+                <input type="checkbox" id="active" name="active" {% if product.active %}checked{% endif %}>
+                <label for="active">Producto activo y visible</label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-success">Guardar Cambios</button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

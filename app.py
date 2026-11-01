@@ -33,6 +33,21 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='cliente')  # admin, emprendedora, cliente
+    
+    # Información de contacto
+    phone = db.Column(db.String(20))
+    address = db.Column(db.String(200))
+    
+    # Redes sociales
+    facebook = db.Column(db.String(200))
+    instagram = db.Column(db.String(200))
+    twitter = db.Column(db.String(200))
+    whatsapp = db.Column(db.String(20))
+    
+    # Información adicional
+    bio = db.Column(db.Text)
+    profile_image = db.Column(db.String(300))
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relación con productos
@@ -180,6 +195,114 @@ def admin_delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'success': True})
+
+@app.route('/admin/user/<int:user_id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_user(user_id):
+    if current_user.role != 'admin':
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('index'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        # Actualizar información básica
+        username = request.form.get('username')
+        email = request.form.get('email')
+        role = request.form.get('role')
+        
+        # Verificar si el username ya existe (excepto el actual)
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user and existing_user.id != user.id:
+            flash('El nombre de usuario ya existe', 'error')
+            return redirect(url_for('admin_edit_user', user_id=user_id))
+        
+        # Verificar si el email ya existe (excepto el actual)
+        existing_email = User.query.filter_by(email=email).first()
+        if existing_email and existing_email.id != user.id:
+            flash('El correo electrónico ya está registrado', 'error')
+            return redirect(url_for('admin_edit_user', user_id=user_id))
+        
+        user.username = username
+        user.email = email
+        user.role = role
+        
+        # Actualizar información de contacto
+        user.phone = request.form.get('phone', '')
+        user.address = request.form.get('address', '')
+        user.bio = request.form.get('bio', '')
+        
+        # Actualizar redes sociales
+        user.facebook = request.form.get('facebook', '')
+        user.instagram = request.form.get('instagram', '')
+        user.twitter = request.form.get('twitter', '')
+        user.whatsapp = request.form.get('whatsapp', '')
+        
+        # Cambiar contraseña si se proporciona
+        new_password = request.form.get('new_password')
+        if new_password:
+            user.set_password(new_password)
+        
+        db.session.commit()
+        flash('Usuario actualizado exitosamente', 'success')
+        return redirect(url_for('admin_dashboard'))
+    
+    return render_template('admin_edit_user.html', user=user)
+
+@app.route('/admin/product/<int:product_id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_product(product_id):
+    if current_user.role != 'admin':
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('index'))
+    
+    product = Product.query.get_or_404(product_id)
+    
+    if request.method == 'POST':
+        product.name = request.form.get('name')
+        product.description = request.form.get('description')
+        product.price = float(request.form.get('price', 0))
+        product.category = request.form.get('category')
+        product.is_service = request.form.get('is_service') == 'on'
+        product.active = request.form.get('active') == 'on'
+        
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                filename = f"{timestamp}_{filename}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                product.image = f"uploads/{filename}"
+        
+        db.session.commit()
+        flash('Producto actualizado exitosamente', 'success')
+        return redirect(url_for('admin_dashboard'))
+    
+    return render_template('admin_edit_product.html', product=product)
+
+@app.route('/admin/product/<int:product_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_product(product_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Acceso denegado'}), 403
+    
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/admin/product/<int:product_id>/toggle', methods=['POST'])
+@login_required
+def admin_toggle_product(product_id):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Acceso denegado'}), 403
+    
+    product = Product.query.get_or_404(product_id)
+    product.active = not product.active
+    db.session.commit()
+    return jsonify({'success': True, 'active': product.active})
 
 # Panel de Emprendedora
 @app.route('/emprendedora/dashboard')
