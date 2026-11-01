@@ -5,11 +5,11 @@
 }
 
 :root {
-    /* Colores profesionales de marketplace */
-    --primary-color: #FF6B35;
-    --primary-dark: #E85A2A;
-    --secondary-color: #004E89;
-    --accent-color: #00A8E8;
+    /* Colores originales morados */
+    --primary-color: #8B5CF6;
+    --primary-dark: #6D28D9;
+    --secondary-color: #C4B5FD;
+    --accent-color: #E9D5FF;
     
     /* Neutros */
     --white: #FFFFFF;
@@ -35,7 +35,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.6;
     color: var(--gray-900);
-    background: var(--gray-50);
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--white) 100%);
     min-height: 100vh;
 }
 
@@ -47,14 +47,13 @@ body {
 
 /* Navbar moderno y profesional */
 .navbar {
-    background: var(--white);
-    color: var(--gray-900);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: var(--white);
     padding: 1rem 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid var(--gray-200);
 }
 
 .navbar .container {
@@ -66,7 +65,7 @@ body {
 .nav-brand a {
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--white);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -80,7 +79,7 @@ body {
 }
 
 .nav-links a {
-    color: var(--gray-700);
+    color: var(--white);
     text-decoration: none;
     transition: all 0.2s;
     padding: 0.5rem 1rem;
@@ -90,12 +89,11 @@ body {
 }
 
 .nav-links a:hover {
-    background: var(--gray-100);
-    color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .user-welcome {
-    color: var(--gray-600);
+    color: var(--accent-color);
     font-weight: 500;
     padding: 0.5rem 1rem;
 }
@@ -230,7 +228,7 @@ body {
 
 /* Hero section moderna */
 .hero {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: var(--white);
     padding: 4rem 0;
     text-align: center;
@@ -635,10 +633,10 @@ body {
     align-items: center;
     margin-bottom: 2rem;
     padding: 2rem;
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     border-radius: 12px;
     color: var(--white);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .dashboard-header h1 {
